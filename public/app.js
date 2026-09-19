@@ -171,10 +171,27 @@ async function addComment(e, postId) {
     fetchPosts();
 }
 
-async function toggleFollow(userId) {
-    await fetch(`/api/users/${userId}/follow`, { method: 'POST' });
-    checkSession();
-    fetchPosts();
+async function toggleFollow(targetUserId) {
+    if (!currentUser) return openAuthModal();
+
+    try {
+        const res = await fetch(`/api/users/${targetUserId}/follow`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (res.ok) {
+            // 1. Re-check session to refresh follower/following counts immediately
+            await checkSession();
+            // 2. Re-render posts to update the '+ Follow' / 'Following' button labels
+            await fetchPosts();
+        } else {
+            const errData = await res.json();
+            showToast(errData.error || 'Follow action failed');
+        }
+    } catch (err) {
+        showToast('Network error, try again.');
+    }
 }
 
 // Auth Handlers
@@ -289,7 +306,7 @@ function handleMobileSidebarBackdropClick(event) {
 
 // Also close mobile profile if user opens the Sign In modal from it
 const originalOpenAuthModal = openAuthModal;
-openAuthModal = function() {
+openAuthModal = function () {
     const sidebar = document.querySelector('.sidebar-left');
     if (sidebar.classList.contains('active')) {
         sidebar.classList.remove('active');

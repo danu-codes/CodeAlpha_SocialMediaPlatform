@@ -77,9 +77,27 @@ app.post('/api/logout', (req, res) => {
 });
 
 app.get('/api/session', async (req, res) => {
-    if (!req.session.userId) return res.json({ loggedIn: false });
-    const user = await User.findById(req.session.userId).select('-password');
-    res.json({ loggedIn: true, user });
+    try {
+        if (!req.session.userId) return res.json({ loggedIn: false });
+
+        const user = await User.findById(req.session.userId).select('-password');
+        if (!user) return res.json({ loggedIn: false });
+
+        // Calculate followers by finding all users who have this user's ID in their following list
+        const followersCount = await User.countDocuments({ following: user._id });
+
+        res.json({
+            loggedIn: true,
+            user: {
+                _id: user._id,
+                username: user.username,
+                following: user.following.map(id => id.toString()), // Normalize ObjectIds to Strings
+                followersCount: followersCount
+            }
+        });
+    } catch (err) {
+        res.status(500).json({ error: 'Session fetch failed' });
+    }
 });
 
 app.get('/api/posts', async (req, res) => {
@@ -111,21 +129,40 @@ app.post('/api/posts/:id/comment', requireAuth, async (req, res) => {
 });
 
 app.post('/api/users/:id/follow', requireAuth, async (req, res) => {
-    const currentUser = await User.findById(req.session.userId);
-    const targetId = req.params.id;
-    if (currentUser._id.toString() === targetId) return res.status(400).json({ error: 'Cannot follow yourself' });
+    try {
+        const currentUser = await User.findById(req.session.userId);
+        const targetId = req.params.id;
 
-    const index = currentUser.following.indexOf(targetId);
-    if (index === -1) currentUser.following.push(targetId);
-    else currentUser.following.splice(index, 1);
-    await currentUser.save();
-    res.json(currentUser);
+        if (currentUser._id.toString() === targetId) {
+            return res.status(400).json({ error: 'Cannot follow yourself' });
+        }
+
+        // Convert all existing array IDs to strings for accurate comparisons
+        const isFollowing = currentUser.following.some(
+            id => id.toString() === targetId
+        );
+
+        if (isFollowing) {
+            // Unfollow
+            currentUser.following = currentUser.following.filter(
+                id => id.toString() !== targetId
+            );
+        } else {
+            // Follow
+            currentUser.following.push(targetId);
+        }
+
+        await currentUser.save();
+        res.json({ success: true, following: currentUser.following });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to update follow status' });
+    }
 });
 
 // Get Session with Live Profile Stats
 app.get('/api/session', async (req, res) => {
     if (!req.session.userId) return res.json({ loggedIn: false });
-    
+
     const user = await User.findById(req.session.userId).select('-password');
     if (!user) return res.json({ loggedIn: false });
 
@@ -146,7 +183,7 @@ app.put('/api/posts/:id', requireAuth, async (req, res) => {
     try {
         const post = await Post.findById(req.params.id);
         if (!post) return res.status(404).json({ error: 'Post not found' });
-        
+
         if (post.author.toString() !== req.session.userId) {
             return res.status(403).json({ error: 'Unauthorized action' });
         }
