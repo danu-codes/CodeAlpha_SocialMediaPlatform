@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social App — CodeAlpha Task 2</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand"><i class="fa-solid fa-share-nodes"></i> CodeAlpha Social</div>
+        <div id="nav-auth"></div>
+    </nav>
+
+    <div class="container">
+        <!-- Main Feed -->
+        <main class="feed">
+            <div id="create-post-card" class="card" style="display: none;">
+                <h3>Create a Post</h3>
+                <textarea id="post-input" placeholder="What's on your mind?"></textarea>
+                <button onclick="submitPost()">Publish Post</button>
+            </div>
+
+            <h2>Recent Posts</h2>
+            <div id="posts-container"></div>
+        </main>
+    </div>
+
+    <!-- Auth Modal -->
+    <div id="auth-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAuthModal()">&times;</span>
+            <h2 id="modal-title">Log In</h2>
+            <input type="text" id="auth-username" placeholder="Username">
+            <input type="password" id="auth-password" placeholder="Password">
+            <button id="auth-submit-btn" onclick="handleAuth()">Submit</button>
+            <p style="margin-top: 1rem; text-align: center;">
+                <a href="#" id="toggle-auth-link" onclick="toggleAuthMode()">Don't have an account? Register</a>
+            </p>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
