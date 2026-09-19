@@ -14,10 +14,14 @@ app.use(session({
     cookie: { maxAge: 24 * 60 * 60 * 1000 }
 }));
 
-mongoose.connect('mongodb://localhost:27017/pulse_social_db')
-    .then(() => console.log('MongoDB Connected Successfully'))
-    .catch(err => console.error('MongoDB Connection Failed:', err));
+// MongoDB Atlas Cloud Connection (No local MongoDB software needed)
+const MONGO_URI = 'mongodb+srv://dstarlord07_db_user:8tBa9odhelwzZRoa@cluster0.sh3yc2s.mongodb.net/?appName=Cluster0';
 
+mongoose.connect(MONGO_URI)
+    .then(() => console.log('Connected to MongoDB Atlas Cloud Database!'))
+    .catch(err => console.error('MongoDB Atlas Connection Error:', err));
+
+// --- Schemas & Models ---
 const User = mongoose.model('User', new mongoose.Schema({
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
@@ -37,11 +41,13 @@ const Post = mongoose.model('Post', new mongoose.Schema({
     createdAt: { type: Date, default: Date.now }
 }));
 
+// --- Middleware ---
 function requireAuth(req, res, next) {
     if (!req.session.userId) return res.status(401).json({ error: 'Authentication required' });
     next();
 }
 
+// --- Routes ---
 app.post('/api/register', async (req, res) => {
     try {
         const { username, password } = req.body;
@@ -114,6 +120,60 @@ app.post('/api/users/:id/follow', requireAuth, async (req, res) => {
     else currentUser.following.splice(index, 1);
     await currentUser.save();
     res.json(currentUser);
+});
+
+// Get Session with Live Profile Stats
+app.get('/api/session', async (req, res) => {
+    if (!req.session.userId) return res.json({ loggedIn: false });
+    
+    const user = await User.findById(req.session.userId).select('-password');
+    if (!user) return res.json({ loggedIn: false });
+
+    // Calculate actual followers count
+    const followersCount = await User.countDocuments({ following: user._id });
+
+    res.json({
+        loggedIn: true,
+        user: {
+            ...user.toObject(),
+            followersCount
+        }
+    });
+});
+
+// Edit Post Route (Author Only)
+app.put('/api/posts/:id', requireAuth, async (req, res) => {
+    try {
+        const post = await Post.findById(req.params.id);
+        if (!post) return res.status(404).json({ error: 'Post not found' });
+        
+        if (post.author.toString() !== req.session.userId) {
+            return res.status(403).json({ error: 'Unauthorized action' });
+        }
+
+        post.content = req.body.content;
+        await post.save();
+        res.json(post);
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to update post' });
+    }
+});
+
+// Delete Post Route (Author Only)
+app.delete('/api/posts/:id', requireAuth, async (req, res) => {
+    try {
+        const post = await Post.findById(req.params.id);
+        if (!post) return res.status(404).json({ error: 'Post not found' });
+
+        if (post.author.toString() !== req.session.userId) {
+            return res.status(403).json({ error: 'Unauthorized action' });
+        }
+
+        await Post.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Post deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to delete post' });
+    }
 });
 
 const PORT = 3000;

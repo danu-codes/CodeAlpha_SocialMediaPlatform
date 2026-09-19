@@ -380,3 +380,123 @@ textarea {
         display: none;
     }
 }
+
+/* Follower & Following Stats Grid */
+.profile-stats-grid {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    margin: 0.75rem 0 1rem;
+    padding: 0.5rem 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+}
+
+.stat-box {
+    text-align: center;
+}
+
+.stat-number {
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--text-main);
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+/* Post Owner Menu Options */
+.owner-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 0.88rem;
+    padding: 0.3rem;
+    border-radius: 4px;
+    transition: 0.2s ease;
+}
+
+.icon-btn:hover { color: var(--primary); background: #f1f5f9; }
+.icon-btn.danger:hover { color: #ef4444; }
+
+.mobile-profile-toggle { display: none; }
+
+/* Mobile Profile View Behavior */
+@media (max-width: 768px) {
+    .mobile-profile-toggle { display: inline-flex; align-items: center; gap: 0.4rem; }
+
+    .sidebar-left {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.6);
+        z-index: 150;
+        padding: 2rem 1rem;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .sidebar-left.active {
+        display: flex;
+    }
+
+    .summary-card {
+        width: 100%;
+        max-width: 340px;
+        position: relative;
+    }
+}
+
+/* Hide mobile close button on desktop */
+.mobile-profile-close {
+    display: none;
+}
+
+/* Mobile responsive fixes */
+@media (max-width: 768px) {
+    .sidebar-left {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(4px); /* Blurs background when open */
+        z-index: 150;
+        padding: 2rem 1rem;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .sidebar-left.active {
+        display: flex;
+    }
+
+    .summary-card {
+        width: 100%;
+        max-width: 340px;
+        position: relative;
+    }
+
+    /* Display mobile close icon on card top-right */
+    .mobile-profile-close {
+        display: block;
+        position: absolute;
+        top: 0.75rem;
+        right: 1rem;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: var(--text-muted);
+        cursor: pointer;
+        padding: 0.2rem 0.5rem;
+        line-height: 1;
+    }
+}

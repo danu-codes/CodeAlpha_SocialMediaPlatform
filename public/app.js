@@ -23,13 +23,26 @@ async function checkSession() {
         if (data.loggedIn) {
             currentUser = data.user;
             actionsContainer.innerHTML = `
-                <span style="font-size:0.9rem; font-weight:600;"><i class="fa-solid fa-user-circle"></i> ${currentUser.username}</span>
+                <button class="btn btn-outline mobile-profile-toggle" onclick="toggleMobileProfile()"><i class="fa-solid fa-user"></i></button>
+                <span class="user-pill"><i class="fa-solid fa-circle-user"></i> ${currentUser.username}</span>
                 <button class="btn btn-outline" onclick="logout()">Logout</button>
             `;
             postBox.style.display = 'block';
 
+            // Populate Sidebar Profile Stats
             document.getElementById('sidebar-username').innerText = currentUser.username;
-            document.getElementById('sidebar-bio').innerText = `${currentUser.following.length} Following`;
+            document.getElementById('sidebar-bio').innerHTML = `
+                <div class="profile-stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-number">${currentUser.followersCount || 0}</div>
+                        <div class="stat-label">Followers</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number">${currentUser.following.length || 0}</div>
+                        <div class="stat-label">Following</div>
+                    </div>
+                </div>
+            `;
             document.getElementById('sidebar-action-btn').style.display = 'none';
         } else {
             currentUser = null;
@@ -37,11 +50,11 @@ async function checkSession() {
             postBox.style.display = 'none';
 
             document.getElementById('sidebar-username').innerText = 'Guest User';
-            document.getElementById('sidebar-bio').innerText = 'Sign in to publish posts and interact with the stream.';
+            document.getElementById('sidebar-bio').innerText = 'Sign in to access your profile statistics and feed actions.';
             document.getElementById('sidebar-action-btn').style.display = 'inline-block';
         }
     } catch (err) {
-        console.error('Session error:', err);
+        console.error('Session verification error:', err);
     }
 }
 
@@ -58,7 +71,7 @@ async function fetchPosts() {
 function renderPosts(posts) {
     const container = document.getElementById('posts-feed-container');
     if (posts.length === 0) {
-        container.innerHTML = `<div class="card" style="text-align:center; color: var(--text-muted);">No posts available. Be the first to share!</div>`;
+        container.innerHTML = `<div class="card" style="text-align:center; color: var(--text-muted);">No posts found.</div>`;
         return;
     }
 
@@ -68,7 +81,7 @@ function renderPosts(posts) {
         const isFollowing = currentUser && currentUser.following.includes(p.author._id);
 
         return `
-            <div class="card">
+            <div class="card" id="post-${p._id}">
                 <div class="post-card-header">
                     <div class="post-user-info">
                         <div class="avatar-placeholder">${p.author.username.charAt(0).toUpperCase()}</div>
@@ -77,11 +90,19 @@ function renderPosts(posts) {
                             <div class="post-time">${new Date(p.createdAt).toLocaleDateString()}</div>
                         </div>
                     </div>
-                    ${currentUser && !isAuthor ? `
-                        <button class="btn btn-outline" style="padding:0.25rem 0.75rem; font-size:0.75rem;" onclick="toggleFollow('${p.author._id}')">
-                            ${isFollowing ? 'Following' : '+ Follow'}
-                        </button>
-                    ` : ''}
+                    <div>
+                        ${currentUser && isAuthor ? `
+                            <div class="owner-actions">
+                                <button class="icon-btn" onclick="openEditModal('${p._id}', \`${escapeQuotes(p.content)}\`)"><i class="fa-solid fa-pen-to-square"></i></button>
+                                <button class="icon-btn danger" onclick="deletePost('${p._id}')"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        ` : ''}
+                        ${currentUser && !isAuthor ? `
+                            <button class="btn btn-outline" style="padding:0.25rem 0.75rem; font-size:0.75rem;" onclick="toggleFollow('${p.author._id}')">
+                                ${isFollowing ? 'Following' : '+ Follow'}
+                            </button>
+                        ` : ''}
+                    </div>
                 </div>
                 <div class="post-body">${p.content}</div>
                 <div class="post-actions">
@@ -206,3 +227,73 @@ function showToast(msg) {
     container.appendChild(toast);
     setTimeout(() => toast.remove(), 2500);
 }
+
+// Edit & Delete Handlers
+function openEditModal(postId, currentContent) {
+    document.getElementById('edit-post-id').value = postId;
+    document.getElementById('edit-post-input').value = currentContent;
+    document.getElementById('edit-post-modal').classList.add('active');
+}
+
+function closeEditModal() {
+    document.getElementById('edit-post-modal').classList.remove('active');
+}
+
+async function submitPostEdit() {
+    const postId = document.getElementById('edit-post-id').value;
+    const content = document.getElementById('edit-post-input').value;
+
+    const res = await fetch(`/api/posts/${postId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content })
+    });
+
+    if (res.ok) {
+        closeEditModal();
+        showToast('Post updated');
+        fetchPosts();
+    } else {
+        showToast('Failed to edit post');
+    }
+}
+
+async function deletePost(postId) {
+    if (!confirm('Are you sure you want to delete this post?')) return;
+
+    const res = await fetch(`/api/posts/${postId}`, { method: 'DELETE' });
+    if (res.ok) {
+        showToast('Post removed');
+        fetchPosts();
+    } else {
+        showToast('Failed to delete post');
+    }
+}
+
+function toggleMobileProfile() {
+    const sidebar = document.querySelector('.sidebar-left');
+    sidebar.classList.toggle('active');
+}
+
+function escapeQuotes(str) {
+    return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
+// Close sidebar when clicking on the dark backdrop area outside the card
+function handleMobileSidebarBackdropClick(event) {
+    // Only close if user clicks directly on the outer backdrop container
+    if (event.target.classList.contains('sidebar-left')) {
+        toggleMobileProfile();
+    }
+}
+
+// Also close mobile profile if user opens the Sign In modal from it
+const originalOpenAuthModal = openAuthModal;
+openAuthModal = function() {
+    const sidebar = document.querySelector('.sidebar-left');
+    if (sidebar.classList.contains('active')) {
+        sidebar.classList.remove('active');
+    }
+    document.getElementById('auth-modal').classList.add('active');
+};
+

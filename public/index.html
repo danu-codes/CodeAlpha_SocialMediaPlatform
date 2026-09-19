@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body>
     <!-- Top Navigation Bar -->
     <header class="navbar">
@@ -23,14 +25,17 @@
     <!-- App Layout -->
     <div class="app-layout">
         <!-- Sidebar Profile Summary -->
-        <aside class="sidebar-left">
-            <div id="user-summary-card" class="card summary-card">
-                <div class="avatar-placeholder big"><i class="fa-solid fa-user"></i></div>
-                <h3 id="sidebar-username">Guest</h3>
-                <p id="sidebar-bio">Log in to interact with the feed and follow users.</p>
-                <button id="sidebar-action-btn" class="btn btn-primary" onclick="openAuthModal()">Sign In</button>
-            </div>
-        </aside>
+        <aside class="sidebar-left" onclick="handleMobileSidebarBackdropClick(event)">
+    <div id="user-summary-card" class="card summary-card">
+        <!-- Add close button for mobile view -->
+        <button class="mobile-profile-close" onclick="toggleMobileProfile()">&times;</button>
+        
+        <div class="avatar-placeholder big"><i class="fa-solid fa-user"></i></div>
+        <h3 id="sidebar-username">Guest</h3>
+        <p id="sidebar-bio">Log in to interact with the feed and follow users.</p>
+        <button id="sidebar-action-btn" class="btn btn-primary" onclick="openAuthModal()">Sign In</button>
+    </div>
+</aside>
 
         <!-- Main Feed Stream -->
         <main class="main-feed">
@@ -85,6 +90,27 @@
     <!-- Toast Notification Container -->
     <div id="toast-container"></div>
 
+    <!-- Add inside <header class="navbar"> inside .nav-actions -->
+    <!-- Mobile Profile Button (Visible only on mobile screens) -->
+    <button class="btn btn-outline mobile-profile-toggle" onclick="toggleMobileProfile()">
+        <i class="fa-solid fa-user"></i> Profile
+    </button>
+
+    <!-- Edit Post Modal -->
+    <div class="modal-overlay" id="edit-post-modal">
+        <div class="modal-card">
+            <button class="modal-close" onclick="closeEditModal()">&times;</button>
+            <div class="modal-header">
+                <h3>Edit Post</h3>
+            </div>
+            <input type="hidden" id="edit-post-id">
+            <textarea id="edit-post-input" rows="4"
+                style="width:100%; border:1px solid #e2e8f0; border-radius:8px; padding:0.6rem; margin: 1rem 0;"></textarea>
+            <button class="btn btn-primary btn-block" onclick="submitPostEdit()">Save Changes</button>
+        </div>
+    </div>
+
     <script src="app.js"></script>
 </body>
+
 </html>
