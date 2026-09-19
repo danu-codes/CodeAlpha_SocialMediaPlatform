@@ -1,3 +1,6 @@
+/* ==========================================================================
+   1. Design Tokens & Global CSS Variables
+   ========================================================================== */
 :root {
     --primary: #2563eb;
     --primary-hover: #1d4ed8;
@@ -7,28 +10,39 @@
     --text-muted: #64748b;
     --border: #e2e8f0;
     --radius: 12px;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-* {
+/* ==========================================================================
+   2. CSS Reset & Core Styling
+   ========================================================================== */
+*, *::before, *::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: 'Inter', -apple-system, sans-serif;
 }
 
 body {
-    background: var(--bg);
+    background-color: var(--bg);
     color: var(--text-main);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     min-height: 100vh;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
 }
 
-/* Navigation */
+/* ==========================================================================
+   3. Navigation Bar
+   ========================================================================== */
 .navbar {
     position: sticky;
     top: 0;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border);
     z-index: 100;
 }
@@ -50,9 +64,22 @@ body {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    transition: var(--transition);
 }
 
-/* Layout Grid */
+.brand-logo:hover {
+    opacity: 0.9;
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* ==========================================================================
+   4. Layout Grid & Cards
+   ========================================================================== */
 .app-layout {
     max-width: 1000px;
     margin: 1.5rem auto;
@@ -67,11 +94,18 @@ body {
     border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 1.25rem;
-    box-shadow: var(--shadow);
+    box-shadow: var(--shadow-sm);
     margin-bottom: 1.25rem;
+    transition: var(--transition);
 }
 
-/* Sidebar Summary */
+.card:hover {
+    box-shadow: var(--shadow);
+}
+
+/* ==========================================================================
+   5. Sidebar & Profile Statistics
+   ========================================================================== */
 .summary-card {
     text-align: center;
     display: flex;
@@ -90,7 +124,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
+    font-weight: 700;
     flex-shrink: 0;
 }
 
@@ -113,7 +147,36 @@ body {
     margin-bottom: 1rem;
 }
 
-/* Create Post Box */
+.profile-stats-grid {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    margin: 0.75rem 0 1rem;
+    padding: 0.6rem 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+}
+
+.stat-box {
+    text-align: center;
+}
+
+.stat-number {
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--text-main);
+}
+
+.stat-label {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ==========================================================================
+   6. Post Creation Form
+   ========================================================================== */
 .create-post-box {
     padding: 1rem;
 }
@@ -130,6 +193,7 @@ textarea {
     outline: none;
     font-size: 0.95rem;
     background: transparent;
+    color: var(--text-main);
 }
 
 .post-box-footer {
@@ -146,15 +210,21 @@ textarea {
     color: var(--text-muted);
 }
 
-/* Buttons */
+/* ==========================================================================
+   7. Buttons & Actions
+   ========================================================================== */
 .btn {
     border: none;
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 1.1rem;
     border-radius: 20px;
     font-weight: 600;
     cursor: pointer;
-    transition: 0.2s ease;
+    transition: var(--transition);
     font-size: 0.88rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
 }
 
 .btn-primary {
@@ -164,6 +234,7 @@ textarea {
 
 .btn-primary:hover {
     background: var(--primary-hover);
+    transform: translateY(-1px);
 }
 
 .btn-block {
@@ -180,9 +251,38 @@ textarea {
 
 .btn-outline:hover {
     background: #f1f5f9;
+    border-color: #cbd5e1;
 }
 
-/* Feed Posts */
+.owner-actions {
+    display: flex;
+    gap: 0.3rem;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 0.4rem;
+    border-radius: 6px;
+    transition: var(--transition);
+}
+
+.icon-btn:hover { 
+    color: var(--primary); 
+    background: #f1f5f9; 
+}
+
+.icon-btn.danger:hover { 
+    color: #ef4444; 
+    background: #fef2f2;
+}
+
+/* ==========================================================================
+   8. Feed & Post Items
+   ========================================================================== */
 .feed-header {
     margin-bottom: 1rem;
 }
@@ -217,9 +317,10 @@ textarea {
 
 .post-body {
     font-size: 0.95rem;
-    line-height: 1.5;
+    line-height: 1.6;
     margin-bottom: 1rem;
     color: #1e293b;
+    word-break: break-word;
 }
 
 .post-actions {
@@ -227,7 +328,7 @@ textarea {
     gap: 1rem;
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
-    padding: 0.5rem 0;
+    padding: 0.4rem 0;
     margin-bottom: 0.75rem;
 }
 
@@ -241,8 +342,9 @@ textarea {
     display: flex;
     align-items: center;
     gap: 0.4rem;
-    padding: 0.3rem 0.5rem;
+    padding: 0.35rem 0.6rem;
     border-radius: 6px;
+    transition: var(--transition);
 }
 
 .action-btn:hover {
@@ -253,7 +355,9 @@ textarea {
     color: #ef4444;
 }
 
-/* Comment System */
+/* ==========================================================================
+   9. Comment System
+   ========================================================================== */
 .comments-container {
     background: #f8fafc;
     border-radius: 8px;
@@ -265,6 +369,7 @@ textarea {
     gap: 0.5rem;
     margin-bottom: 0.5rem;
     font-size: 0.85rem;
+    word-break: break-word;
 }
 
 .comment-item .comment-author {
@@ -275,29 +380,39 @@ textarea {
 .comment-form {
     display: flex;
     gap: 0.5rem;
-    margin-top: 0.5rem;
+    margin-top: 0.6rem;
 }
 
 .comment-form input {
     flex: 1;
     border: 1px solid var(--border);
     border-radius: 20px;
-    padding: 0.4rem 0.8rem;
+    padding: 0.45rem 0.85rem;
     font-size: 0.85rem;
     outline: none;
+    transition: var(--transition);
 }
 
-/* Modal */
+.comment-form input:focus {
+    border-color: var(--primary);
+    background: #ffffff;
+}
+
+/* ==========================================================================
+   10. Modals & Overlay Windows
+   ========================================================================== */
 .modal-overlay {
     position: fixed;
     inset: 0;
     background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     display: flex;
     justify-content: center;
     align-items: center;
     opacity: 0;
     pointer-events: none;
-    transition: 0.2s ease;
+    transition: var(--transition);
     z-index: 200;
     padding: 1rem;
 }
@@ -314,6 +429,13 @@ textarea {
     width: 100%;
     max-width: 400px;
     position: relative;
+    box-shadow: var(--shadow-lg);
+    transform: scale(0.95);
+    transition: var(--transition);
+}
+
+.modal-overlay.active .modal-card {
+    transform: scale(1);
 }
 
 .modal-close {
@@ -325,6 +447,11 @@ textarea {
     font-size: 1.4rem;
     cursor: pointer;
     color: var(--text-muted);
+    transition: var(--transition);
+}
+
+.modal-close:hover {
+    color: var(--text-main);
 }
 
 .input-group {
@@ -340,10 +467,15 @@ textarea {
 }
 
 .input-group input {
-    padding: 0.6rem;
+    padding: 0.65rem;
     border: 1px solid var(--border);
     border-radius: 8px;
     outline: none;
+    transition: var(--transition);
+}
+
+.input-group input:focus {
+    border-color: var(--primary);
 }
 
 .modal-footer {
@@ -352,7 +484,9 @@ textarea {
     font-size: 0.85rem;
 }
 
-/* Toast */
+/* ==========================================================================
+   11. Notifications / Toast
+   ========================================================================== */
 #toast-container {
     position: fixed;
     bottom: 20px;
@@ -367,108 +501,42 @@ textarea {
     border-radius: 8px;
     font-size: 0.85rem;
     margin-top: 0.5rem;
-    box-shadow: var(--shadow);
+    box-shadow: var(--shadow-lg);
+    animation: toastIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Responsive Rules */
-@media (max-width: 768px) {
-    .app-layout {
-        grid-template-columns: 1fr;
-    }
-
-    .sidebar-left {
-        display: none;
-    }
+@keyframes toastIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-/* Follower & Following Stats Grid */
-.profile-stats-grid {
-    display: flex;
-    justify-content: space-around;
-    width: 100%;
-    margin: 0.75rem 0 1rem;
-    padding: 0.5rem 0;
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-}
-
-.stat-box {
-    text-align: center;
-}
-
-.stat-number {
-    font-weight: 800;
-    font-size: 1.1rem;
-    color: var(--text-main);
-}
-
-.stat-label {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    text-transform: uppercase;
-}
-
-/* Post Owner Menu Options */
-.owner-actions {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.icon-btn {
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    cursor: pointer;
-    font-size: 0.88rem;
-    padding: 0.3rem;
-    border-radius: 4px;
-    transition: 0.2s ease;
-}
-
-.icon-btn:hover { color: var(--primary); background: #f1f5f9; }
-.icon-btn.danger:hover { color: #ef4444; }
-
-.mobile-profile-toggle { display: none; }
-
-/* Mobile Profile View Behavior */
-@media (max-width: 768px) {
-    .mobile-profile-toggle { display: inline-flex; align-items: center; gap: 0.4rem; }
-
-    .sidebar-left {
-        display: none;
-        position: fixed;
-        inset: 0;
-        background: rgba(15, 23, 42, 0.6);
-        z-index: 150;
-        padding: 2rem 1rem;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .sidebar-left.active {
-        display: flex;
-    }
-
-    .summary-card {
-        width: 100%;
-        max-width: 340px;
-        position: relative;
-    }
-}
-
-/* Hide mobile close button on desktop */
+/* Hidden by default on desktop */
+.mobile-profile-toggle,
 .mobile-profile-close {
     display: none;
 }
 
-/* Mobile responsive fixes */
+/* ==========================================================================
+   12. Responsive Breakpoints (Mobile & Tablet)
+   ========================================================================== */
 @media (max-width: 768px) {
+    .app-layout {
+        grid-template-columns: 1fr;
+        margin: 1rem auto;
+    }
+
+    .mobile-profile-toggle {
+        display: inline-flex;
+    }
+
+    /* Transform Sidebar into Off-Canvas Backdrop Drawer */
     .sidebar-left {
         display: none;
         position: fixed;
         inset: 0;
         background: rgba(15, 23, 42, 0.6);
-        backdrop-filter: blur(4px); /* Blurs background when open */
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
         z-index: 150;
         padding: 2rem 1rem;
         align-items: center;
@@ -483,9 +551,11 @@ textarea {
         width: 100%;
         max-width: 340px;
         position: relative;
+        top: 0;
+        box-shadow: var(--shadow-lg);
+        animation: scaleUp 0.2s ease-out;
     }
 
-    /* Display mobile close icon on card top-right */
     .mobile-profile-close {
         display: block;
         position: absolute;
@@ -498,5 +568,10 @@ textarea {
         cursor: pointer;
         padding: 0.2rem 0.5rem;
         line-height: 1;
+    }
+
+    @keyframes scaleUp {
+        from { transform: scale(0.9); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
     }
 }
