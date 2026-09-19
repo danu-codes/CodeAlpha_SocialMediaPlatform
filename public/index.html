@@ -3,43 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Social App — CodeAlpha Task 2</title>
+    <title>Pulse Social — CodeAlpha Task 2</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-brand"><i class="fa-solid fa-share-nodes"></i> CodeAlpha Social</div>
-        <div id="nav-auth"></div>
-    </nav>
+    <!-- Top Navigation Bar -->
+    <header class="navbar">
+        <div class="nav-container">
+            <a href="#" class="brand-logo">
+                <i class="fa-solid fa-bolt"></i> Pulse
+            </a>
+            <div id="nav-user-actions" class="nav-actions">
+                <!-- Dynamically populated via app.js -->
+            </div>
+        </div>
+    </header>
 
-    <div class="container">
-        <!-- Main Feed -->
-        <main class="feed">
-            <div id="create-post-card" class="card" style="display: none;">
-                <h3>Create a Post</h3>
-                <textarea id="post-input" placeholder="What's on your mind?"></textarea>
-                <button onclick="submitPost()">Publish Post</button>
+    <!-- App Layout -->
+    <div class="app-layout">
+        <!-- Sidebar Profile Summary -->
+        <aside class="sidebar-left">
+            <div id="user-summary-card" class="card summary-card">
+                <div class="avatar-placeholder big"><i class="fa-solid fa-user"></i></div>
+                <h3 id="sidebar-username">Guest</h3>
+                <p id="sidebar-bio">Log in to interact with the feed and follow users.</p>
+                <button id="sidebar-action-btn" class="btn btn-primary" onclick="openAuthModal()">Sign In</button>
+            </div>
+        </aside>
+
+        <!-- Main Feed Stream -->
+        <main class="main-feed">
+            <!-- Create Post Component -->
+            <div id="create-post-card" class="card create-post-box" style="display: none;">
+                <div class="post-input-wrapper">
+                    <div class="avatar-placeholder"><i class="fa-solid fa-pen"></i></div>
+                    <textarea id="post-input" placeholder="Share what's on your mind..." rows="3"></textarea>
+                </div>
+                <div class="post-box-footer">
+                    <span class="char-counter" id="char-counter">0 / 280</span>
+                    <button class="btn btn-primary" onclick="submitPost()">Post</button>
+                </div>
             </div>
 
-            <h2>Recent Posts</h2>
-            <div id="posts-container"></div>
+            <div class="feed-header">
+                <h2>Activity Feed</h2>
+            </div>
+
+            <!-- Feed Stream -->
+            <div id="posts-feed-container">
+                <!-- Posts dynamically rendered here -->
+            </div>
         </main>
     </div>
 
     <!-- Auth Modal -->
-    <div id="auth-modal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeAuthModal()">&times;</span>
-            <h2 id="modal-title">Log In</h2>
-            <input type="text" id="auth-username" placeholder="Username">
-            <input type="password" id="auth-password" placeholder="Password">
-            <button id="auth-submit-btn" onclick="handleAuth()">Submit</button>
-            <p style="margin-top: 1rem; text-align: center;">
-                <a href="#" id="toggle-auth-link" onclick="toggleAuthMode()">Don't have an account? Register</a>
-            </p>
+    <div class="modal-overlay" id="auth-modal">
+        <div class="modal-card">
+            <button class="modal-close" onclick="closeAuthModal()">&times;</button>
+            <div class="modal-header">
+                <h3 id="modal-title">Welcome Back</h3>
+                <p id="modal-subtitle">Log in to access your Pulse profile</p>
+            </div>
+            <form id="auth-form" onsubmit="handleAuth(event)">
+                <div class="input-group">
+                    <label>Username</label>
+                    <input type="text" id="auth-username" required placeholder="Enter username">
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="auth-password" required placeholder="••••••••">
+                </div>
+                <button type="submit" id="auth-submit-btn" class="btn btn-primary btn-block">Log In</button>
+            </form>
+            <div class="modal-footer">
+                <a href="#" id="auth-toggle-link" onclick="toggleAuthMode()">New to Pulse? Create an account</a>
+            </div>
         </div>
     </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container"></div>
 
     <script src="app.js"></script>
 </body>
